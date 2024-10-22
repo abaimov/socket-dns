@@ -12,19 +12,17 @@
 
     socket.onopen = function(event) {
         console.log('Соединение установлено с сервером');
-        socket.send('Привет сервер!'); // Отправка сообщения на сервер
+        socket.send('Привет сервер!');
     };
 
     socket.onmessage = function(event) {
-        console.log('Сообщение от сервера:', event.data); // Обработка входящих сообщений от сервера
+        console.log('Сообщение от сервера:', event.data);
     };
 
-    // Обработка разрыва соединения
     socket.onclose = function(event) {
         console.log('Соединение с сервером разорвано');
     };
 
-    // Обработка ошибок
     socket.onerror = function(error) {
         console.log('Ошибка соединения:', error);
     };
