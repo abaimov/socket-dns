@@ -2,9 +2,9 @@
   "name": "dns-socket",
   "version": "1.0.0",
   "description": "",
-  "main": "app.ts",
+  "main": "app.mjs",
   "scripts": {
-    "start": "node app.ts"
+    "start": "node app.mjs"
   },
   "keywords": [],
   "author": "",
