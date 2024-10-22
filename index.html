@@ -4,33 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebSocket Client</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        #messages {
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 100%;
+            height: 300px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+        }
+        #messages p {
+            margin: 5px 0;
+        }
+    </style>
 </head>
 <body>
 <h1>WebSocket Client</h1>
-<div id="user-agent"></div> <!-- Для отображения User-Agent -->
 <script>
-    const socket = new WebSocket('wss://socket-dns.onrender.com');
+    const messagesDiv = document.getElementById('messages');
+    let socket;
 
-    socket.onopen = function(event) {
-        console.log('Соединение установлено с сервером');
-        socket.send('client');
-    };
+    function connectWebSocket() {
+        socket = new WebSocket('ws://localhost:423');
 
-    socket.onmessage = function(event) {
-        console.log('Сообщение от сервера:', event.data);
-        if (event.data.startsWith('User-Agent:')) {
-            const userAgent = event.data.split('User-Agent: ')[1];
-            document.getElementById('user-agent').innerText = `Ваш User-Agent: ${userAgent}`; // Отображаем User-Agent на странице
-        }
-    };
+        socket.onopen = function() {
+            console.log('WebSocket connection established');
 
-    socket.onclose = function(event) {
-        console.log('Соединение с сервером разорвано');
-    };
 
-    socket.onerror = function(error) {
-        console.log('Ошибка соединения:', error);
-    };
+            const userAgent = navigator.userAgent;
+            socket.send(JSON.stringify({ userAgent: userAgent }));
+        };
+
+        socket.onmessage = function(event) {
+            console.log('Message from server:', event.data);
+        };
+
+        socket.onclose = function() {
+            console.log('WebSocket connection closed');
+
+        };
+
+        socket.onerror = function(error) {
+            console.error('WebSocket error:', error);
+        };
+    }
+
+    connectWebSocket();
 </script>
+
+
 </body>
 </html>
