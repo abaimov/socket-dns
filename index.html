@@ -3,35 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Socket.IO Client</title>
-    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+    <title>WebSocket Client</title>
 </head>
 <body>
-<h1>Socket.IO Client</h1>
+<h1>WebSocket Client</h1>
 <script>
-    const socket = io(`https://socket-dns.onrender.com`);
-    socket.on('connect', () => {
-        console.log('Соединение установлено с сервером:', socket.id);
-        socket.emit('message', 'Привет сервер!');
-    });
+    const socket = new WebSocket('wss://socket-dns.onrender.com'); // Подключение к WebSocket
 
-    socket.on('welcome', (data) => {
-        console.log('Сообщение от сервера:', data);
-    });
+    socket.onopen = function(event) {
+        console.log('Соединение установлено с сервером');
+        socket.send('Привет сервер!'); // Отправка сообщения на сервер
+    };
 
-    socket.on('response', (data) => {
-        console.log('Ответ от сервера:', data);
-    });
+    socket.onmessage = function(event) {
+        console.log('Сообщение от сервера:', event.data); // Обработка входящих сообщений от сервера
+    };
 
     // Обработка разрыва соединения
-    socket.on('disconnect', () => {
+    socket.onclose = function(event) {
         console.log('Соединение с сервером разорвано');
-    });
+    };
 
     // Обработка ошибок
-    socket.on('error', (error) => {
+    socket.onerror = function(error) {
         console.log('Ошибка соединения:', error);
-    });
+    };
 </script>
 </body>
 </html>

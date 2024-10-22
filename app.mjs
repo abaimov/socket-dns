@@ -1,16 +1,16 @@
 import express from 'express';
 import { createServer } from 'http';
-import { Server } from 'socket.io';
+import { WebSocketServer } from 'ws'; // Исправленный импорт
 import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import dotenv from 'dotenv'; // Импортируем dotenv
+import dotenv from 'dotenv';
 
-dotenv.config(); // Инициализация dotenv
+dotenv.config();
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server);
+const wss = new WebSocketServer({ server }); // Создаем экземпляр WebSocket.Server
 
 // Получаем __dirname для ES-модулей
 const __filename = fileURLToPath(import.meta.url);
@@ -20,22 +20,25 @@ app.get('/', (req, res) => {
     res.sendFile(join(__dirname, 'index.html'));
 });
 
-io.on('connection', (socket) => {
-    console.log('Новое подключение: ', socket.id);
+// Обработка WebSocket соединений
+wss.on('connection', (ws) => {
+    console.log('Новое подключение');
 
-    socket.on('message', (msg) => {
-        console.log('Получено сообщение: ', msg);
-        socket.emit('response', 'Сообщение получено сервером');
+    // Отправляем приветственное сообщение
+    ws.send('Соединение установлено');
+
+    // Обработка входящих сообщений
+    ws.on('message', (message) => {
+        console.log('Получено сообщение: ', message);
+        ws.send('Сообщение получено сервером');
     });
 
-    socket.emit('welcome', 'Соединение установлено');
-
-    socket.on('disconnect', () => {
+    // Обработка отключения клиента
+    ws.on('close', () => {
         console.log('Клиент отключился');
     });
 });
 
-// Используйте переменную PORT из файла .env
 const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => {
     console.log(`Сервер запущен на порту ${PORT}`);
