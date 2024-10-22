@@ -13,7 +13,7 @@
 
     socket.onopen = function(event) {
         console.log('Соединение установлено с сервером');
-        socket.send('Привет сервер!');
+        socket.send('client');
     };
 
     socket.onmessage = function(event) {

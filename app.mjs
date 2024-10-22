@@ -1,9 +1,9 @@
 import express from 'express';
-import { createServer } from 'http';
-import { WebSocketServer } from 'ws';
+import {createServer} from 'http';
+import {WebSocketServer} from 'ws';
 import useragent from 'express-useragent';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import {fileURLToPath} from 'url';
+import {dirname, join} from 'path';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
 
@@ -14,7 +14,7 @@ app.use(useragent.express());
 app.use(morgan('short')); // Логирование запросов
 
 const server = createServer(app);
-const wss = new WebSocketServer({ server });
+const wss = new WebSocketServer({server});
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -27,6 +27,10 @@ const getCurrentTime = () => {
 // Отправка HTML страницы
 app.get('/page', (req, res) => {
     res.sendFile(join(__dirname, 'index.html'));
+});
+
+app.get('/', (req, res) => {
+    res.json({msg: "GET"})
 });
 
 // Обработка POST запроса
