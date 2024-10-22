@@ -2,9 +2,9 @@
   "name": "dns-socket",
   "version": "1.0.0",
   "description": "",
-  "main": "app.mjs",
+  "main": "app.ts",
   "scripts": {
-    "start": "node app.mjs"
+    "start": "node app.ts"
   },
   "keywords": [],
   "author": "",
@@ -12,5 +12,8 @@
   "dependencies": {
     "express": "^4.21.1",
     "socket.io": "^4.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.8"
   }
 }
