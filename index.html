@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket.IO Client</title>
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+</head>
+<body>
+<h1>Socket.IO Client</h1>
+<script>
+    const socket = io(`${process.env.URL_SERVER}`);
+    socket.on('connect', () => {
+        console.log('Соединение установлено с сервером:', socket.id);
+        socket.emit('message', 'Привет сервер!');
+    });
+
+    // Получение сообщений от сервера
+    socket.on('welcome', (data) => {
+        console.log('Сообщение от сервера:', data);
+    });
+
+    socket.on('response', (data) => {
+        console.log('Ответ от сервера:', data);
+    });
+
+    // Обработка разрыва соединения
+    socket.on('disconnect', () => {
+        console.log('Соединение с сервером разорвано');
+    });
+
+    // Обработка ошибок
+    socket.on('error', (error) => {
+        console.log('Ошибка соединения:', error);
+    });
+</script>
+</body>
+</html>
