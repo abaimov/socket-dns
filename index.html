@@ -9,13 +9,12 @@
 <body>
 <h1>Socket.IO Client</h1>
 <script>
-    const socket = io(`${process.env.URL_SERVER}`);
+    const socket = io(`https://socket-dns.onrender.com`);
     socket.on('connect', () => {
         console.log('Соединение установлено с сервером:', socket.id);
         socket.emit('message', 'Привет сервер!');
     });
 
-    // Получение сообщений от сервера
     socket.on('welcome', (data) => {
         console.log('Сообщение от сервера:', data);
     });
