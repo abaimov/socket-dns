@@ -9,7 +9,7 @@
 <h1>WebSocket Client</h1>
 <div id="user-agent"></div> <!-- Для отображения User-Agent -->
 <script>
-    const socket = new WebSocket('ws://socket-dns.onrender.com');
+    const socket = new WebSocket('wss://socket-dns.onrender.com');
 
     socket.onopen = function(event) {
         console.log('Соединение установлено с сервером');
