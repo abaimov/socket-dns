@@ -1,14 +1,18 @@
 import express from 'express';
 import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
-import { join } from 'path';
+import useragent from 'express-useragent';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { dirname, join } from 'path';
 import dotenv from 'dotenv';
+import morgan from 'morgan';
 
 dotenv.config();
 
 const app = express();
+app.use(useragent.express());
+app.use(morgan('short')); // Логирование запросов
+
 const server = createServer(app);
 const wss = new WebSocketServer({ server });
 
@@ -20,13 +24,34 @@ const getCurrentTime = () => {
     return now.toTimeString().split(' ')[0];
 };
 
-app.get('/', (req, res) => {
+// Отправка HTML страницы
+app.get('/page', (req, res) => {
     res.sendFile(join(__dirname, 'index.html'));
 });
 
-wss.on('connection', (ws) => {
-    console.log(`[${getCurrentTime()}] Новое подключение`);
+// Обработка POST запроса
+app.post('/', (req, res) => {
+    const userAgent = req.useragent;
 
+    res.json({
+        browser: userAgent.browser,
+        version: userAgent.version,
+        os: userAgent.os,
+        platform: userAgent.platform,
+        source: userAgent.source
+    });
+});
+
+// Обработка WebSocket соединений
+const clients = new Set(); // Для отслеживания подключенных клиентов
+
+wss.on('connection', (ws, req) => {
+    console.log(`[${getCurrentTime()}] Новое подключение`);
+    clients.add(ws); // Добавляем клиента в набор
+
+    // Получаем User-Agent из HTTP-заголовков
+    const userAgent = req.headers['user-agent'];
+    ws.send(`User-Agent: ${userAgent}`); // Отправляем User-Agent клиенту
     ws.send('Соединение установлено');
 
     ws.on('message', (message) => {
@@ -36,6 +61,7 @@ wss.on('connection', (ws) => {
 
     ws.on('close', () => {
         console.log(`[${getCurrentTime()}] Клиент отключился`);
+        clients.delete(ws); // Удаляем клиента из набора
     });
 });
 

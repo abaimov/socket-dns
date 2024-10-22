@@ -7,8 +7,9 @@
 </head>
 <body>
 <h1>WebSocket Client</h1>
+<div id="user-agent"></div> <!-- Для отображения User-Agent -->
 <script>
-    const socket = new WebSocket('wss://socket-dns.onrender.com'); // Подключение к WebSocket
+    const socket = new WebSocket('ws://socket-dns.onrender.com');
 
     socket.onopen = function(event) {
         console.log('Соединение установлено с сервером');
@@ -17,6 +18,10 @@
 
     socket.onmessage = function(event) {
         console.log('Сообщение от сервера:', event.data);
+        if (event.data.startsWith('User-Agent:')) {
+            const userAgent = event.data.split('User-Agent: ')[1];
+            document.getElementById('user-agent').innerText = `Ваш User-Agent: ${userAgent}`; // Отображаем User-Agent на странице
+        }
     };
 
     socket.onclose = function(event) {
