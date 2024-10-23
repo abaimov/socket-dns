@@ -12,7 +12,7 @@
     let socket;
 
     function connectWebSocket() {
-        socket = new WebSocket('ws://localhost:423');
+        socket = new WebSocket('wss://socket-dns.onrender.com');
 
         socket.onopen = function() {
             console.log('WebSocket connection established');
