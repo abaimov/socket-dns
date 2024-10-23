@@ -18,15 +18,15 @@ const __dirname = path.dirname(__filename);
 app.use(useragent.express());
 
 app.get('/', (req, res) => {
-    const userAgent = req.headers['user-agent'];
-    const parsedUserAgent = useragent.parse(userAgent);
+    // const userAgent = req.headers['user-agent'];
+    // const parsedUserAgent = useragent.parse(userAgent);
 
-    // Проверка на устройства Apple
-    if (parsedUserAgent.platform.includes('Apple')) {
-        res.redirect(`${process.env.REDIRECT_URL}`); // Укажите URL для редиректа
-    } else {
-        res.sendFile(path.join(__dirname, 'index.html'));
-    }
+    // // Проверка на устройства Apple
+    // if (parsedUserAgent.platform.includes('Appled')) {
+    //     res.redirect(`${process.env.REDIRECT_URL}`); // Укажите URL для редиректа
+    // } else {
+    //     res.sendFile(path.join(__dirname, 'index.html'));
+    // }
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
