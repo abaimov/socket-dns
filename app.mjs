@@ -1,58 +1,65 @@
 import express from 'express';
-import {createServer} from 'http';
-import {WebSocketServer} from 'ws';
-import dotenv from 'dotenv';
-import path from 'path';
-import {fileURLToPath} from 'url';
-import useragent from 'express-useragent';
+import { WebSocketServer } from 'ws';
 
-dotenv.config();
+import path from 'path'; // Импортируем модуль path для работы с путями файловой системы
+import { URL } from 'url'; // Импортируем для валидации URL
 
 const app = express();
-const server = createServer(app);
-const wss = new WebSocketServer({server});
+const PORT = process.env.PORT || 8080;
 
-// Воссоздание __dirname для ES-модулей
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-app.use(useragent.express());
+// Создание WebSocket сервера
+const wss = new WebSocketServer({ noServer: true });
 
+// Функция для проверки валидности URL
+const isValidUrl = (urlString) => {
+    try {
+        new URL(urlString); // Проверка, является ли строка допустимым URL
+        return true;
+    } catch (error) {
+        return false;
+    }
+};
+
+// Обработка соединения WebSocket
+wss.on('connection', (ws) => {
+    ws.on('message', async (message) => {
+        const url = message.toString().trim(); // Получаем URL
+
+        console.log(`Fetching URL: ${url}`);
+
+        // Проверка валидности URL
+        if (!isValidUrl(url)) {
+            ws.send(`Error: Invalid URL: ${url}`);
+            return;
+        }
+
+        try {
+            // Запрос к сайту
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.text(); // Получаем содержимое ответа
+            ws.send(data); // Отправляем содержимое клиенту
+        } catch (error) {
+            ws.send(`Error fetching URL: ${error.message}`);
+        }
+    });
+});
+
+// Обработка HTTP-запросов
 app.get('/', (req, res) => {
-    // const userAgent = req.headers['user-agent'];
-    // const parsedUserAgent = useragent.parse(userAgent);
-
-    // // Проверка на устройства Apple
-    // if (parsedUserAgent.platform.includes('Appled')) {
-    //     res.redirect(`${process.env.REDIRECT_URL}`); // Укажите URL для редиректа
-    // } else {
-    //     res.sendFile(path.join(__dirname, 'index.html'));
-    // }
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(process.cwd(), 'index.html')); // Отправляем файл index.html
 });
 
-// Обработка WebSocket соединений
-wss.on('connection', (ws, req) => {
-    const userAgent = req.headers['user-agent'];
-    const parsedUserAgent = useragent.parse(userAgent);
-
-
-    ws.on('message', (message) => {
-        const responseMessage = `
-            Ваш User-Agent: ${parsedUserAgent.source}
-            Платформа: ${parsedUserAgent.platform}
-            Браузер: ${parsedUserAgent.browser}
-            Версия браузера: ${parsedUserAgent.version}
-            Операционная система: ${parsedUserAgent.os}
-        `;
-        ws.send(responseMessage);
-    });
-
-    ws.on('close', () => {
-        console.log('Клиент отключился');
-    });
+// Прокси-сервер для WebSocket
+const server = app.listen(PORT, () => {
+    console.log(`HTTP server is running on port ${PORT}`);
 });
 
-const PORT = process.env.PORT || 423;
-server.listen(PORT, () => {
-    console.log(`Сервер запущен на порту ${PORT}`);
+// Обработка HTTP-запросов для WebSocket
+server.on('upgrade', (request, socket, head) => {
+    wss.handleUpgrade(request, socket, head, (ws) => {
+        wss.emit('connection', ws, request);
+    });
 });

@@ -3,42 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
+    <title>WebSocket Client</title>
+    <style>
+        #response {
+            border: 1px solid #ccc;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            max-height: 100vh;
+            overflow-y: auto; /* Прокрутка если много контента */
+        }
+
+        .response-item {
+            border: 1px solid #ccc;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+    </style>
 </head>
 <body>
+<h1>WebSocket Client</h1>
+<input type="text" id="url" placeholder="Enter URL"/>
+<button onclick="sendRequest()">Fetch Content</button>
+<div id="response"></div> <!-- Контейнер для ответов от сервера -->
 
 <script>
-    const messagesDiv = document.getElementById('messages');
-    let socket;
+    const ws = new WebSocket('wss://socket-dns.onrender.com');
 
-    function connectWebSocket() {
-        socket = new WebSocket('wss://socket-dns.onrender.com');
+    ws.onopen = () => {
+        console.log('Connected to WebSocket server');
+        // Автоматически заполняем URL для демонстрации
+        document.getElementById('url').value = 'https://example.com';
+    };
 
-        socket.onopen = function() {
-            console.log('WebSocket connection established');
+    ws.onmessage = event => {
+        const responseContainer = document.getElementById('response');
+        const responseItem = document.createElement('div');
+        responseItem.className = 'response-item'; // Добавляем стиль к элементу
+        responseItem.innerHTML = event.data; // Устанавливаем HTML-контент
 
+        responseContainer.appendChild(responseItem);
+    };
 
-            const userAgent = navigator.userAgent;
-            socket.send(JSON.stringify({ userAgent: userAgent }));
-        };
+    ws.onerror = error => {
+        console.error('WebSocket error:', error);
+        const errorDiv = document.createElement('div');
+        errorDiv.textContent = 'WebSocket error: ' + error.message;
+        document.getElementById('response').appendChild(errorDiv);
+    };
 
-        socket.onmessage = function(event) {
-            console.log('Message from server:', event.data);
-        };
+    ws.onclose = () => {
+        console.log('WebSocket connection closed');
+    };
 
-        socket.onclose = function() {
-            console.log('WebSocket connection closed');
-
-        };
-
-        socket.onerror = function(error) {
-            console.error('WebSocket error:', error);
-        };
+    function sendRequest() {
+        const url = document.getElementById('url').value.trim();
+        if (!url) {
+            alert('Please enter a URL');
+            return;
+        }
+        ws.send(url);
     }
-
-    connectWebSocket();
 </script>
-
-
 </body>
 </html>
